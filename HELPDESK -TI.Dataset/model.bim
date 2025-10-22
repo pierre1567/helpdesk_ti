@@ -1,0 +1,2164 @@
+{
+  "compatibilityLevel": 1567,
+  "model": {
+    "annotations": [
+      {
+        "name": "PBI_QueryOrder",
+        "value": "[\"HELP1\",\"dProblema\",\"dAtendimento\",\"dRequisição\",\"fSolução\",\"dUsuario\",\"HELP1 (2)\",\"fDuração\",\"Consulta1\",\"dCalendario\"]"
+      },
+      {
+        "name": "__PBI_TimeIntelligenceEnabled",
+        "value": "1"
+      },
+      {
+        "name": "PBIDesktopVersion",
+        "value": "2.124.1052.0 (23.12)"
+      },
+      {
+        "name": "PBI_ProTooling",
+        "value": "[\"DevMode\"]"
+      }
+    ],
+    "culture": "pt-BR",
+    "cultures": [
+      {
+        "name": "pt-BR",
+        "linguisticMetadata": {
+          "content": {
+            "DynamicImprovement": "HighConfidence",
+            "Language": "en-US",
+            "Version": "1.0.0"
+          },
+          "contentType": "json"
+        }
+      }
+    ],
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": true
+    },
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "expressions": [
+      {
+        "name": "HELP1",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navegação"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "expression": [
+          "let",
+          "    Fonte = Excel.Workbook(File.Contents(\"C:\\Users\\Robespierre\\Documents\\DASHBOARDS\\base de dados\\helpdesk\\hlp2.xlsx\"), null, true),",
+          "    HELP_Table = Fonte{[Item=\"HELP\",Kind=\"Table\"]}[Data],",
+          "    #\"Tipo Alterado\" = Table.TransformColumnTypes(HELP_Table,{{\"Atendente\", type text}, {\"Ano\", Int64.Type}, {\"Mês\", type text}, {\"Dia\", Int64.Type}, {\"Data Fechamento\", type text}, {\"Data Iteração\", type text}, {\"Data Solução\", type text}, {\"Descricao\", type text}, {\"ID Atendente\", Int64.Type}, {\"ID Problema\", Int64.Type}, {\"ID Requerente\", Int64.Type}, {\"ID Usuario\", Int64.Type}, {\"Problema\", type text}, {\"Requerente\", type text}, {\"Resolvido\", type text}, {\"Satisfação\", type text}, {\"Soma de Ticker\", Int64.Type}, {\"Usuário\", type text}}),",
+          "    #\"Colunas Reordenadas\" = Table.ReorderColumns(#\"Tipo Alterado\",{\"Atendente\", \"Dia\", \"Mês\", \"Ano\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"Descricao\", \"ID Atendente\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"Problema\", \"Requerente\", \"Resolvido\", \"Satisfação\", \"Soma de Ticker\", \"Usuário\"}),",
+          "    #\"Colunas Mescladas\" = Table.CombineColumns(Table.TransformColumnTypes(#\"Colunas Reordenadas\", {{\"Dia\", type text}, {\"Ano\", type text}}, \"pt-BR\"),{\"Dia\", \"Mês\", \"Ano\"},Combiner.CombineTextByDelimiter(\"/\", QuoteStyle.None),\"Mesclado\"),",
+          "    #\"Tipo Alterado1\" = Table.TransformColumnTypes(#\"Colunas Mescladas\",{{\"Mesclado\", type date}}),",
+          "    #\"Colunas Renomeadas\" = Table.RenameColumns(#\"Tipo Alterado1\",{{\"Mesclado\", \"Data Inicio\"}}),",
+          "    #\"Erros Substituídos\" = Table.ReplaceErrorValues(#\"Colunas Renomeadas\", {{\"ID Problema\", 78999}}),",
+          "    #\"Linhas Filtradas\" = Table.SelectRows(#\"Erros Substituídos\", each true),",
+          "    #\"Valor Substituído\" = Table.ReplaceValue(#\"Linhas Filtradas\",\"n�o\",\"não\",Replacer.ReplaceText,{\"Resolvido\"}),",
+          "    #\"Valor Substituído1\" = Table.ReplaceValue(#\"Valor Substituído\",\"'-\",\"---------------\",Replacer.ReplaceText,{\"Data Fechamento\"}),",
+          "    #\"Valor Substituído2\" = Table.ReplaceValue(#\"Valor Substituído1\",\"'-\",\"-----------------\",Replacer.ReplaceText,{\"Data Iteração\"}),",
+          "    #\"Linhas Filtradas1\" = Table.SelectRows(#\"Valor Substituído2\", each true),",
+          "    #\"Valor Substituído3\" = Table.ReplaceValue(#\"Linhas Filtradas1\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Data Iteração\"}),",
+          "    #\"Valor Substituído4\" = Table.ReplaceValue(#\"Valor Substituído3\",\"\",\"------------------\",Replacer.ReplaceValue,{\"Data Solução\"}),",
+          "    #\"Valor Substituído5\" = Table.ReplaceValue(#\"Valor Substituído4\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Data Solução\"}),",
+          "    #\"Valor Substituído6\" = Table.ReplaceValue(#\"Valor Substituído5\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Descricao\"}),",
+          "    #\"Valor Substituído7\" = Table.ReplaceValue(#\"Valor Substituído6\",\"SEI >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+          "    #\"Valor Substituído8\" = Table.ReplaceValue(#\"Valor Substituído7\",\"Suporte >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+          "    #\"Linhas Filtradas2\" = Table.SelectRows(#\"Valor Substituído8\", each ([Descricao] <> \"Laborat�rio\")),",
+          "    #\"Colunas Renomeadas1\" = Table.RenameColumns(#\"Linhas Filtradas2\",{{\"Soma de Ticker\", \"Ticker\"}}),",
+          "    #\"Coluna Duplicada\" = Table.DuplicateColumn(#\"Colunas Renomeadas1\", \"Ticker\", \"Ticker - Copiar\"),",
+          "    #\"Colunas Renomeadas2\" = Table.RenameColumns(#\"Coluna Duplicada\",{{\"Ticker - Copiar\", \"ID Ticker\"}}),",
+          "    #\"Valor Substituído9\" = Table.ReplaceValue(#\"Colunas Renomeadas2\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Usuário\"}),",
+          "    #\"Valor Substituído10\" = Table.ReplaceValue(#\"Valor Substituído9\",\"'-\",\"-----------------------\",Replacer.ReplaceText,{\"Usuário\"}),",
+          "    #\"Valor Substituído11\" = Table.ReplaceValue(#\"Valor Substituído10\",\"\",\"-------------------\",Replacer.ReplaceValue,{\"Satisfação\"}),",
+          "    #\"Valor Substituído12\" = Table.ReplaceValue(#\"Valor Substituído11\",\"'-\",\"----------------------\",Replacer.ReplaceText,{\"Satisfação\"})",
+          "in",
+          "    #\"Valor Substituído12\""
+        ],
+        "kind": "m",
+        "lineageTag": "3057b343-3466-409b-914b-54bf48803dab",
+        "queryGroup": "outras"
+      },
+      {
+        "name": "HELP1 (2)",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navegação"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "expression": [
+          "let",
+          "    Fonte = Excel.Workbook(File.Contents(\"C:\\Users\\Robespierre\\Documents\\DASHBOARDS\\base de dados\\helpdesk\\hlp2.xlsx\"), null, true),",
+          "    HELP_Table = Fonte{[Item=\"HELP\",Kind=\"Table\"]}[Data],",
+          "    #\"Tipo Alterado\" = Table.TransformColumnTypes(HELP_Table,{{\"Atendente\", type text}, {\"Ano\", Int64.Type}, {\"Mês\", type text}, {\"Dia\", Int64.Type}, {\"Data Fechamento\", type text}, {\"Data Iteração\", type text}, {\"Data Solução\", type text}, {\"Descricao\", type text}, {\"ID Atendente\", Int64.Type}, {\"ID Problema\", Int64.Type}, {\"ID Requerente\", Int64.Type}, {\"ID Usuario\", Int64.Type}, {\"Problema\", type text}, {\"Requerente\", type text}, {\"Resolvido\", type text}, {\"Satisfação\", type text}, {\"Soma de Ticker\", Int64.Type}, {\"Usuário\", type text}}),",
+          "    #\"Colunas Reordenadas\" = Table.ReorderColumns(#\"Tipo Alterado\",{\"Atendente\", \"Dia\", \"Mês\", \"Ano\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"Descricao\", \"ID Atendente\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"Problema\", \"Requerente\", \"Resolvido\", \"Satisfação\", \"Soma de Ticker\", \"Usuário\"}),",
+          "    #\"Colunas Mescladas\" = Table.CombineColumns(Table.TransformColumnTypes(#\"Colunas Reordenadas\", {{\"Dia\", type text}, {\"Ano\", type text}}, \"pt-BR\"),{\"Dia\", \"Mês\", \"Ano\"},Combiner.CombineTextByDelimiter(\"/\", QuoteStyle.None),\"Mesclado\"),",
+          "    #\"Tipo Alterado1\" = Table.TransformColumnTypes(#\"Colunas Mescladas\",{{\"Mesclado\", type date}}),",
+          "    #\"Colunas Renomeadas\" = Table.RenameColumns(#\"Tipo Alterado1\",{{\"Mesclado\", \"Data Inicio\"}}),",
+          "    #\"Erros Substituídos\" = Table.ReplaceErrorValues(#\"Colunas Renomeadas\", {{\"ID Problema\", 78999}}),",
+          "    #\"Linhas Filtradas\" = Table.SelectRows(#\"Erros Substituídos\", each true),",
+          "    #\"Valor Substituído\" = Table.ReplaceValue(#\"Linhas Filtradas\",\"n�o\",\"não\",Replacer.ReplaceText,{\"Resolvido\"}),",
+          "    #\"Valor Substituído1\" = Table.ReplaceValue(#\"Valor Substituído\",\"'-\",\"---------------\",Replacer.ReplaceText,{\"Data Fechamento\"}),",
+          "    #\"Valor Substituído2\" = Table.ReplaceValue(#\"Valor Substituído1\",\"'-\",\"-----------------\",Replacer.ReplaceText,{\"Data Iteração\"}),",
+          "    #\"Linhas Filtradas1\" = Table.SelectRows(#\"Valor Substituído2\", each true),",
+          "    #\"Valor Substituído3\" = Table.ReplaceValue(#\"Linhas Filtradas1\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Data Iteração\"}),",
+          "    #\"Valor Substituído4\" = Table.ReplaceValue(#\"Valor Substituído3\",\"\",\"------------------\",Replacer.ReplaceValue,{\"Data Solução\"}),",
+          "    #\"Valor Substituído5\" = Table.ReplaceValue(#\"Valor Substituído4\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Data Solução\"}),",
+          "    #\"Valor Substituído6\" = Table.ReplaceValue(#\"Valor Substituído5\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Descricao\"}),",
+          "    #\"Valor Substituído7\" = Table.ReplaceValue(#\"Valor Substituído6\",\"SEI >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+          "    #\"Valor Substituído8\" = Table.ReplaceValue(#\"Valor Substituído7\",\"Suporte >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+          "    #\"Linhas Filtradas2\" = Table.SelectRows(#\"Valor Substituído8\", each ([Descricao] <> \"Laborat�rio\")),",
+          "    #\"Colunas Renomeadas1\" = Table.RenameColumns(#\"Linhas Filtradas2\",{{\"Soma de Ticker\", \"Ticker\"}}),",
+          "    #\"Coluna Duplicada\" = Table.DuplicateColumn(#\"Colunas Renomeadas1\", \"Ticker\", \"Ticker - Copiar\"),",
+          "    #\"Colunas Renomeadas2\" = Table.RenameColumns(#\"Coluna Duplicada\",{{\"Ticker - Copiar\", \"ID Ticker\"}}),",
+          "    #\"Valor Substituído9\" = Table.ReplaceValue(#\"Colunas Renomeadas2\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Usuário\"}),",
+          "    #\"Valor Substituído10\" = Table.ReplaceValue(#\"Valor Substituído9\",\"'-\",\"-----------------------\",Replacer.ReplaceText,{\"Usuário\"}),",
+          "    #\"Valor Substituído11\" = Table.ReplaceValue(#\"Valor Substituído10\",\"\",\"-------------------\",Replacer.ReplaceValue,{\"Satisfação\"}),",
+          "    #\"Valor Substituído12\" = Table.ReplaceValue(#\"Valor Substituído11\",\"'-\",\"----------------------\",Replacer.ReplaceText,{\"Satisfação\"}),",
+          "    #\"Tipo Alterado2\" = Table.TransformColumnTypes(#\"Valor Substituído12\",{{\"Data Inicio\", type datetime}})",
+          "in",
+          "    #\"Tipo Alterado2\""
+        ],
+        "kind": "m",
+        "lineageTag": "dc38c278-37e9-4578-9f1f-b413ddebab54",
+        "queryGroup": "outras"
+      },
+      {
+        "name": "Consulta1",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navegação"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Function"
+          }
+        ],
+        "expression": [
+          "let",
+          "    Fonte = List.Dates",
+          "in",
+          "    Fonte"
+        ],
+        "kind": "m",
+        "lineageTag": "0d33bc75-941f-474e-8981-cc6cb896db4a"
+      }
+    ],
+    "queryGroups": [
+      {
+        "annotations": [
+          {
+            "name": "PBI_QueryGroupOrder",
+            "value": "0"
+          }
+        ],
+        "folder": "outras"
+      }
+    ],
+    "relationships": [
+      {
+        "name": "6bc46d21-bcef-4e66-9cf3-71e18a8d8ac5",
+        "fromColumn": "Data Abertura",
+        "fromTable": "fDuração",
+        "joinOnDateBehavior": "datePartOnly",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_9b978dd6-465e-4ae8-ab85-f81979ff40af"
+      },
+      {
+        "name": "7e2199c4-1624-4c20-83c1-38fac30e97e0",
+        "fromColumn": "Data Fechamento",
+        "fromTable": "fDuração",
+        "joinOnDateBehavior": "datePartOnly",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_002cd450-4564-48bb-a59b-01dea262e28a"
+      },
+      {
+        "name": "84ebb7d1-713f-49ce-89d0-563820977c8f",
+        "fromColumn": "ID Problema",
+        "fromTable": "dAtendimento",
+        "toCardinality": "many",
+        "toColumn": "ID Problema",
+        "toTable": "dProblema"
+      },
+      {
+        "name": "f0fb4a0f-b15b-452d-b20f-bb2c55ba42e2",
+        "fromColumn": "ID Ticker",
+        "fromTable": "dRequisição",
+        "toColumn": "ID TICKER",
+        "toTable": "dAtendimento"
+      },
+      {
+        "name": "5c91bac5-954c-416d-9fe7-d8a6384f4aec",
+        "crossFilteringBehavior": "bothDirections",
+        "fromColumn": "ID Atendente",
+        "fromTable": "dAtendimento",
+        "toCardinality": "many",
+        "toColumn": "ID Atendente",
+        "toTable": "fSolução"
+      },
+      {
+        "name": "c82a8534-9fa2-4672-950a-35ed2e434b10",
+        "crossFilteringBehavior": "bothDirections",
+        "fromColumn": "ID Ticker",
+        "fromTable": "dRequisição",
+        "isActive": false,
+        "toCardinality": "many",
+        "toColumn": "ID Ticker",
+        "toTable": "fSolução"
+      },
+      {
+        "name": "f0b02797-944c-4123-be07-ffffc3713237",
+        "fromColumn": "ID Usuario",
+        "fromTable": "fSolução",
+        "toCardinality": "many",
+        "toColumn": "ID Usuario",
+        "toTable": "dUsuario"
+      },
+      {
+        "name": "86979cdb-3cd9-4a79-9987-5f78ff975b79",
+        "crossFilteringBehavior": "bothDirections",
+        "fromColumn": "ID Problema",
+        "fromTable": "fSolução",
+        "isActive": false,
+        "toCardinality": "many",
+        "toColumn": "ID Problema",
+        "toTable": "dProblema"
+      },
+      {
+        "name": "927c54de-19a2-43ff-95b8-b946345035a2",
+        "fromColumn": "Data Inicio",
+        "fromTable": "dUsuario",
+        "toColumn": "ID Data",
+        "toTable": "dCalendario"
+      },
+      {
+        "name": "b472d3ae-986d-4b7d-8cdb-7520d906573b",
+        "fromColumn": "Data Inicio",
+        "fromTable": "fSolução",
+        "isActive": false,
+        "toColumn": "ID Data",
+        "toTable": "dCalendario"
+      },
+      {
+        "name": "1a50ef43-b1eb-4d1e-9898-31a9b9a622d2",
+        "crossFilteringBehavior": "bothDirections",
+        "fromColumn": "ID Ticker",
+        "fromTable": "fSolução",
+        "toCardinality": "many",
+        "toColumn": "ID Ticker",
+        "toTable": "fDuração"
+      },
+      {
+        "name": "6413a579-fe7e-4162-b764-f44e3e25ee02",
+        "fromColumn": "Data Fechamento",
+        "fromTable": "fSolução",
+        "isActive": false,
+        "toColumn": "ID Data",
+        "toTable": "dCalendario"
+      },
+      {
+        "name": "9a702fc6-2528-4d33-a17f-dee5b3584a06",
+        "fromColumn": "Data Fechamento",
+        "fromTable": "dUsuario",
+        "isActive": false,
+        "toColumn": "ID Data",
+        "toTable": "dCalendario"
+      },
+      {
+        "name": "4444aa5a-449e-468e-9fde-598a276d6173",
+        "fromColumn": "Data",
+        "fromTable": "fDuração",
+        "isActive": false,
+        "toColumn": "ID Data",
+        "toTable": "dCalendario"
+      }
+    ],
+    "sourceQueryCulture": "pt-BR",
+    "tables": [
+      {
+        "name": "DateTableTemplate_6eb46ddc-994d-4c52-aaf6-c2e7eff6c4dc",
+        "annotations": [
+          {
+            "name": "__PBI_TemplateDateTable",
+            "value": "true"
+          },
+          {
+            "name": "DefaultItem",
+            "value": "DateHierarchy"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "PaddedDateTableDates",
+            "dataType": "dateTime",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": true,
+            "lineageTag": "0010ebed-cd30-4be2-b55a-aa922f147580",
+            "sourceColumn": "[Date]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Ano",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Year"
+              }
+            ],
+            "dataCategory": "Years",
+            "dataType": "int64",
+            "expression": "YEAR([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "3e287285-8ca8-444d-84cf-0b76c6529062",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "MonthNumber"
+              }
+            ],
+            "dataCategory": "MonthOfYear",
+            "dataType": "int64",
+            "expression": "MONTH([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "b6e9488f-fb32-40ee-9af8-3413fa1ae15e",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Mês",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Month"
+              }
+            ],
+            "dataCategory": "Months",
+            "dataType": "string",
+            "expression": "FORMAT([Date], \"MMMM\")",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "376c8a5f-a799-49c9-87f6-c182785b253e",
+            "sortByColumn": "MonthNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "QuarterNumber"
+              }
+            ],
+            "dataCategory": "QuarterOfYear",
+            "dataType": "int64",
+            "expression": "INT(([MonthNo] + 2) / 3)",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "f3848de4-5eda-4ee0-9614-0e889021472a",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Trimestre",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Quarter"
+              }
+            ],
+            "dataCategory": "Quarters",
+            "dataType": "string",
+            "expression": "\"Trim \" & [QuarterNo]",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "d1a95c28-7be9-4e93-b591-d02a1303e2b4",
+            "sortByColumn": "QuarterNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Dia",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Day"
+              }
+            ],
+            "dataCategory": "DayOfMonth",
+            "dataType": "int64",
+            "expression": "DAY([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "13c44ded-4162-44e4-8daf-8360e857d26f",
+            "summarizeBy": "none",
+            "type": "calculated"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Hierarquia de datas",
+            "annotations": [
+              {
+                "name": "TemplateId",
+                "value": "DateHierarchy"
+              }
+            ],
+            "levels": [
+              {
+                "name": "Ano",
+                "column": "Ano",
+                "lineageTag": "af11868e-c4e1-48ee-be0f-4034650e7127",
+                "ordinal": 0
+              },
+              {
+                "name": "Trimestre",
+                "column": "Trimestre",
+                "lineageTag": "59638f7a-4a11-49c6-be64-9e78ad2f3ddc",
+                "ordinal": 1
+              },
+              {
+                "name": "Mês",
+                "column": "Mês",
+                "lineageTag": "e5f7532e-c7f1-4bfc-a01f-e79e7a918ce2",
+                "ordinal": 2
+              },
+              {
+                "name": "Dia",
+                "column": "Dia",
+                "lineageTag": "7b18db42-9125-4564-b010-0414f79c564b",
+                "ordinal": 3
+              }
+            ],
+            "lineageTag": "19200192-92c5-4d91-be19-1a56cbfa3650"
+          }
+        ],
+        "isHidden": true,
+        "isPrivate": true,
+        "lineageTag": "443a6357-e8df-4cba-805c-7b22492936e7",
+        "partitions": [
+          {
+            "name": "DateTableTemplate_6eb46ddc-994d-4c52-aaf6-c2e7eff6c4dc-0c77b7fd-36bf-4dfb-8613-fc2784e40778",
+            "mode": "import",
+            "source": {
+              "expression": "Calendar(Date(2015,1,1), Date(2015,1,1))",
+              "type": "calculated"
+            }
+          }
+        ]
+      },
+      {
+        "name": "dProblema",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Descricao",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "eafc8bf1-2b11-4950-909c-9bb36c606961",
+            "sourceColumn": "Descricao",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID Problema",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "8f2d8b24-7fc9-41ca-a45f-4af0d195230e",
+            "sourceColumn": "ID Problema",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Problema",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "13dc6ade-1220-44b5-b977-22c0eb57beff",
+            "sourceColumn": "Problema",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "d38ff2a1-2665-4079-a7c3-519c7865bc4f",
+        "partitions": [
+          {
+            "name": "dProblema-7929e274-5c29-4a9b-b96c-3d55626653cd",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Fonte = Excel.Workbook(File.Contents(\"C:\\Users\\Robespierre\\Documents\\DASHBOARDS\\base de dados\\helpdesk\\hlp2.xlsx\"), null, true),",
+                "    HELP_Table = Fonte{[Item=\"HELP\",Kind=\"Table\"]}[Data],",
+                "    #\"Tipo Alterado\" = Table.TransformColumnTypes(HELP_Table,{{\"Atendente\", type text}, {\"Ano\", Int64.Type}, {\"Mês\", type text}, {\"Dia\", Int64.Type}, {\"Data Fechamento\", type text}, {\"Data Iteração\", type text}, {\"Data Solução\", type text}, {\"Descricao\", type text}, {\"ID Atendente\", Int64.Type}, {\"ID Problema\", Int64.Type}, {\"ID Requerente\", Int64.Type}, {\"ID Usuario\", Int64.Type}, {\"Problema\", type text}, {\"Requerente\", type text}, {\"Resolvido\", type text}, {\"Satisfação\", type text}, {\"Soma de Ticker\", Int64.Type}, {\"Usuário\", type text}}),",
+                "    #\"Colunas Reordenadas\" = Table.ReorderColumns(#\"Tipo Alterado\",{\"Atendente\", \"Dia\", \"Mês\", \"Ano\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"Descricao\", \"ID Atendente\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"Problema\", \"Requerente\", \"Resolvido\", \"Satisfação\", \"Soma de Ticker\", \"Usuário\"}),",
+                "    #\"Colunas Mescladas\" = Table.CombineColumns(Table.TransformColumnTypes(#\"Colunas Reordenadas\", {{\"Dia\", type text}, {\"Ano\", type text}}, \"pt-BR\"),{\"Dia\", \"Mês\", \"Ano\"},Combiner.CombineTextByDelimiter(\"/\", QuoteStyle.None),\"Mesclado\"),",
+                "    #\"Tipo Alterado1\" = Table.TransformColumnTypes(#\"Colunas Mescladas\",{{\"Mesclado\", type date}}),",
+                "    #\"Colunas Renomeadas\" = Table.RenameColumns(#\"Tipo Alterado1\",{{\"Mesclado\", \"Data Inicio\"}}),",
+                "    #\"Erros Substituídos\" = Table.ReplaceErrorValues(#\"Colunas Renomeadas\", {{\"ID Problema\", 78999}}),",
+                "    #\"Linhas Filtradas\" = Table.SelectRows(#\"Erros Substituídos\", each true),",
+                "    #\"Valor Substituído\" = Table.ReplaceValue(#\"Linhas Filtradas\",\"n�o\",\"não\",Replacer.ReplaceText,{\"Resolvido\"}),",
+                "    #\"Valor Substituído1\" = Table.ReplaceValue(#\"Valor Substituído\",\"'-\",\"---------------\",Replacer.ReplaceText,{\"Data Fechamento\"}),",
+                "    #\"Valor Substituído2\" = Table.ReplaceValue(#\"Valor Substituído1\",\"'-\",\"-----------------\",Replacer.ReplaceText,{\"Data Iteração\"}),",
+                "    #\"Linhas Filtradas1\" = Table.SelectRows(#\"Valor Substituído2\", each true),",
+                "    #\"Valor Substituído3\" = Table.ReplaceValue(#\"Linhas Filtradas1\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Data Iteração\"}),",
+                "    #\"Valor Substituído4\" = Table.ReplaceValue(#\"Valor Substituído3\",\"\",\"------------------\",Replacer.ReplaceValue,{\"Data Solução\"}),",
+                "    #\"Valor Substituído5\" = Table.ReplaceValue(#\"Valor Substituído4\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Data Solução\"}),",
+                "    #\"Valor Substituído6\" = Table.ReplaceValue(#\"Valor Substituído5\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído7\" = Table.ReplaceValue(#\"Valor Substituído6\",\"SEI >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído8\" = Table.ReplaceValue(#\"Valor Substituído7\",\"Suporte >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Linhas Filtradas2\" = Table.SelectRows(#\"Valor Substituído8\", each ([Descricao] <> \"Laborat�rio\")),",
+                "    #\"Outras Colunas Removidas\" = Table.SelectColumns(#\"Linhas Filtradas2\",{\"Descricao\", \"ID Problema\", \"Problema\"}),",
+                "    #\"Colunas Reordenadas1\" = Table.ReorderColumns(#\"Outras Colunas Removidas\",{\"ID Problema\", \"Problema\", \"Descricao\"}),",
+                "    #\"Valor Substituído9\" = Table.ReplaceValue(#\"Colunas Reordenadas1\",\"------------------\",\"\",Replacer.ReplaceText,{\"Descricao\"})",
+                "in",
+                "    #\"Valor Substituído9\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "dAtendimento",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Atendente",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "a48cf069-61c4-4f73-934a-bbf0df53a923",
+            "sourceColumn": "Atendente",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Satisfação",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2a91fea6-3a43-4b3c-9590-d0156ef197e4",
+            "sourceColumn": "Satisfação",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID Atendente",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "db884fa7-992c-42f8-a907-e51beecdbfc6",
+            "sourceColumn": "ID Atendente",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID Usuario",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "5e20f196-b849-487d-bd82-8538338161c3",
+            "sourceColumn": "ID Usuario",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ID Problema",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "c64803a6-f60d-44fe-9cca-8ca01071c701",
+            "sourceColumn": "ID Problema",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID TICKER",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "0bc84c48-ddac-409e-b8c4-362ec4445ac4",
+            "sourceColumn": "ID TICKER",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "40738b27-1af2-49d5-b599-e081f588ce35",
+        "partitions": [
+          {
+            "name": "dAtendimento-7d544bfe-7794-46ae-b3a7-1c67222405a3",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Fonte = Excel.Workbook(File.Contents(\"C:\\Users\\Robespierre\\Documents\\DASHBOARDS\\base de dados\\helpdesk\\hlp2.xlsx\"), null, true),",
+                "    HELP_Table = Fonte{[Item=\"HELP\",Kind=\"Table\"]}[Data],",
+                "    #\"Tipo Alterado\" = Table.TransformColumnTypes(HELP_Table,{{\"Atendente\", type text}, {\"Ano\", Int64.Type}, {\"Mês\", type text}, {\"Dia\", Int64.Type}, {\"Data Fechamento\", type text}, {\"Data Iteração\", type text}, {\"Data Solução\", type text}, {\"Descricao\", type text}, {\"ID Atendente\", Int64.Type}, {\"ID Problema\", Int64.Type}, {\"ID Requerente\", Int64.Type}, {\"ID Usuario\", Int64.Type}, {\"Problema\", type text}, {\"Requerente\", type text}, {\"Resolvido\", type text}, {\"Satisfação\", type text}, {\"Soma de Ticker\", Int64.Type}, {\"Usuário\", type text}}),",
+                "    #\"Colunas Reordenadas\" = Table.ReorderColumns(#\"Tipo Alterado\",{\"Atendente\", \"Dia\", \"Mês\", \"Ano\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"Descricao\", \"ID Atendente\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"Problema\", \"Requerente\", \"Resolvido\", \"Satisfação\", \"Soma de Ticker\", \"Usuário\"}),",
+                "    #\"Colunas Mescladas\" = Table.CombineColumns(Table.TransformColumnTypes(#\"Colunas Reordenadas\", {{\"Dia\", type text}, {\"Ano\", type text}}, \"pt-BR\"),{\"Dia\", \"Mês\", \"Ano\"},Combiner.CombineTextByDelimiter(\"/\", QuoteStyle.None),\"Mesclado\"),",
+                "    #\"Tipo Alterado1\" = Table.TransformColumnTypes(#\"Colunas Mescladas\",{{\"Mesclado\", type date}}),",
+                "    #\"Colunas Renomeadas\" = Table.RenameColumns(#\"Tipo Alterado1\",{{\"Mesclado\", \"Data Inicio\"}}),",
+                "    #\"Erros Substituídos\" = Table.ReplaceErrorValues(#\"Colunas Renomeadas\", {{\"ID Problema\", 78999}}),",
+                "    #\"Linhas Filtradas\" = Table.SelectRows(#\"Erros Substituídos\", each true),",
+                "    #\"Valor Substituído\" = Table.ReplaceValue(#\"Linhas Filtradas\",\"n�o\",\"não\",Replacer.ReplaceText,{\"Resolvido\"}),",
+                "    #\"Valor Substituído1\" = Table.ReplaceValue(#\"Valor Substituído\",\"'-\",\"---------------\",Replacer.ReplaceText,{\"Data Fechamento\"}),",
+                "    #\"Valor Substituído2\" = Table.ReplaceValue(#\"Valor Substituído1\",\"'-\",\"-----------------\",Replacer.ReplaceText,{\"Data Iteração\"}),",
+                "    #\"Linhas Filtradas1\" = Table.SelectRows(#\"Valor Substituído2\", each true),",
+                "    #\"Valor Substituído3\" = Table.ReplaceValue(#\"Linhas Filtradas1\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Data Iteração\"}),",
+                "    #\"Valor Substituído4\" = Table.ReplaceValue(#\"Valor Substituído3\",\"\",\"------------------\",Replacer.ReplaceValue,{\"Data Solução\"}),",
+                "    #\"Valor Substituído5\" = Table.ReplaceValue(#\"Valor Substituído4\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Data Solução\"}),",
+                "    #\"Valor Substituído6\" = Table.ReplaceValue(#\"Valor Substituído5\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído7\" = Table.ReplaceValue(#\"Valor Substituído6\",\"SEI >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído8\" = Table.ReplaceValue(#\"Valor Substituído7\",\"Suporte >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Linhas Filtradas2\" = Table.SelectRows(#\"Valor Substituído8\", each ([Descricao] <> \"Laborat�rio\")),",
+                "    #\"Outras Colunas Removidas\" = Table.SelectColumns(#\"Linhas Filtradas2\",{\"Soma de Ticker\", \"Satisfação\", \"Usuário\", \"Atendente\", \"ID Atendente\", \"ID Usuario\", \"ID Problema\"}),",
+                "    #\"Colunas Reordenadas1\" = Table.ReorderColumns(#\"Outras Colunas Removidas\",{\"Atendente\", \"Usuário\", \"Soma de Ticker\", \"Satisfação\", \"ID Atendente\", \"ID Usuario\", \"ID Problema\"}),",
+                "    #\"Valor Substituído9\" = Table.ReplaceValue(#\"Colunas Reordenadas1\",\"'-\",\"-----------------\",Replacer.ReplaceText,{\"Usuário\"}),",
+                "    #\"Valor Substituído10\" = Table.ReplaceValue(#\"Valor Substituído9\",\"\",\"---------------------\",Replacer.ReplaceValue,{\"Usuário\"}),",
+                "    #\"Tipo Alterado2\" = Table.TransformColumnTypes(#\"Valor Substituído10\",{{\"Soma de Ticker\", type text}}),",
+                "    #\"Colunas Renomeadas1\" = Table.RenameColumns(#\"Tipo Alterado2\",{{\"Soma de Ticker\", \"Ticker\"}}),",
+                "    #\"Valor Substituído11\" = Table.ReplaceValue(#\"Colunas Renomeadas1\",\"\",\"---------------------\",Replacer.ReplaceValue,{\"Satisfação\"}),",
+                "    #\"Valor Substituído12\" = Table.ReplaceValue(#\"Valor Substituído11\",\"'-\",\"----------------------\",Replacer.ReplaceText,{\"Satisfação\"}),",
+                "    #\"Duplicatas Removidas\" = Table.Distinct(#\"Valor Substituído12\", {\"Ticker\"}),",
+                "    #\"Coluna Duplicada\" = Table.DuplicateColumn(#\"Duplicatas Removidas\", \"Ticker\", \"Ticker - Copiar\"),",
+                "    #\"Colunas Renomeadas2\" = Table.RenameColumns(#\"Coluna Duplicada\",{{\"Ticker - Copiar\", \"ID TICKER\"}}),",
+                "    #\"Colunas Removidas\" = Table.RemoveColumns(#\"Colunas Renomeadas2\",{\"Usuário\", \"Ticker\"}),",
+                "    #\"Valor Substituído13\" = Table.ReplaceValue(#\"Colunas Removidas\",\"\",\"\",Replacer.ReplaceValue,{\"Satisfação\"}),",
+                "    #\"Valor Substituído14\" = Table.ReplaceValue(#\"Valor Substituído13\",\"---------------------\",\"\",Replacer.ReplaceText,{\"Satisfação\"}),",
+                "    #\"Valor Substituído15\" = Table.ReplaceValue(#\"Valor Substituído14\",\"-\",\"\",Replacer.ReplaceText,{\"Satisfação\"})",
+                "in",
+                "    #\"Valor Substituído15\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "dRequisição",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "ID Requerente",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "92861dcc-cff5-4626-bb08-90afe4e7345f",
+            "sourceColumn": "ID Requerente",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Requerente",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "1045b1a0-6391-4f1c-a070-87b440842c47",
+            "sourceColumn": "Requerente",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID Ticker",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "4bc9b185-cd93-4e8d-94b7-6c8cdc936367",
+            "sourceColumn": "ID Ticker",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "b58e386b-3eb5-4a18-acae-672f8486e84c",
+        "partitions": [
+          {
+            "name": "dRequisição-19f0ef0c-b298-45d4-8800-e6851a364f32",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Fonte = Excel.Workbook(File.Contents(\"C:\\Users\\Robespierre\\Documents\\DASHBOARDS\\base de dados\\helpdesk\\hlp2.xlsx\"), null, true),",
+                "    HELP_Table = Fonte{[Item=\"HELP\",Kind=\"Table\"]}[Data],",
+                "    #\"Tipo Alterado\" = Table.TransformColumnTypes(HELP_Table,{{\"Atendente\", type text}, {\"Ano\", Int64.Type}, {\"Mês\", type text}, {\"Dia\", Int64.Type}, {\"Data Fechamento\", type text}, {\"Data Iteração\", type text}, {\"Data Solução\", type text}, {\"Descricao\", type text}, {\"ID Atendente\", Int64.Type}, {\"ID Problema\", Int64.Type}, {\"ID Requerente\", Int64.Type}, {\"ID Usuario\", Int64.Type}, {\"Problema\", type text}, {\"Requerente\", type text}, {\"Resolvido\", type text}, {\"Satisfação\", type text}, {\"Soma de Ticker\", Int64.Type}, {\"Usuário\", type text}}),",
+                "    #\"Colunas Reordenadas\" = Table.ReorderColumns(#\"Tipo Alterado\",{\"Atendente\", \"Dia\", \"Mês\", \"Ano\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"Descricao\", \"ID Atendente\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"Problema\", \"Requerente\", \"Resolvido\", \"Satisfação\", \"Soma de Ticker\", \"Usuário\"}),",
+                "    #\"Colunas Mescladas\" = Table.CombineColumns(Table.TransformColumnTypes(#\"Colunas Reordenadas\", {{\"Dia\", type text}, {\"Ano\", type text}}, \"pt-BR\"),{\"Dia\", \"Mês\", \"Ano\"},Combiner.CombineTextByDelimiter(\"/\", QuoteStyle.None),\"Mesclado\"),",
+                "    #\"Tipo Alterado1\" = Table.TransformColumnTypes(#\"Colunas Mescladas\",{{\"Mesclado\", type date}}),",
+                "    #\"Colunas Renomeadas\" = Table.RenameColumns(#\"Tipo Alterado1\",{{\"Mesclado\", \"Data Inicio\"}}),",
+                "    #\"Erros Substituídos\" = Table.ReplaceErrorValues(#\"Colunas Renomeadas\", {{\"ID Problema\", 78999}}),",
+                "    #\"Linhas Filtradas\" = Table.SelectRows(#\"Erros Substituídos\", each true),",
+                "    #\"Valor Substituído\" = Table.ReplaceValue(#\"Linhas Filtradas\",\"n�o\",\"não\",Replacer.ReplaceText,{\"Resolvido\"}),",
+                "    #\"Valor Substituído1\" = Table.ReplaceValue(#\"Valor Substituído\",\"'-\",\"---------------\",Replacer.ReplaceText,{\"Data Fechamento\"}),",
+                "    #\"Valor Substituído2\" = Table.ReplaceValue(#\"Valor Substituído1\",\"'-\",\"-----------------\",Replacer.ReplaceText,{\"Data Iteração\"}),",
+                "    #\"Linhas Filtradas1\" = Table.SelectRows(#\"Valor Substituído2\", each true),",
+                "    #\"Valor Substituído3\" = Table.ReplaceValue(#\"Linhas Filtradas1\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Data Iteração\"}),",
+                "    #\"Valor Substituído4\" = Table.ReplaceValue(#\"Valor Substituído3\",\"\",\"------------------\",Replacer.ReplaceValue,{\"Data Solução\"}),",
+                "    #\"Valor Substituído5\" = Table.ReplaceValue(#\"Valor Substituído4\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Data Solução\"}),",
+                "    #\"Valor Substituído6\" = Table.ReplaceValue(#\"Valor Substituído5\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído7\" = Table.ReplaceValue(#\"Valor Substituído6\",\"SEI >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído8\" = Table.ReplaceValue(#\"Valor Substituído7\",\"Suporte >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Linhas Filtradas2\" = Table.SelectRows(#\"Valor Substituído8\", each ([Descricao] <> \"Laborat�rio\")),",
+                "    #\"Colunas Renomeadas1\" = Table.RenameColumns(#\"Linhas Filtradas2\",{{\"Soma de Ticker\", \"Ticker\"}}),",
+                "    #\"Coluna Duplicada\" = Table.DuplicateColumn(#\"Colunas Renomeadas1\", \"Ticker\", \"Ticker - Copiar\"),",
+                "    #\"Colunas Renomeadas2\" = Table.RenameColumns(#\"Coluna Duplicada\",{{\"Ticker - Copiar\", \"ID Ticker\"}}),",
+                "    #\"Valor Substituído9\" = Table.ReplaceValue(#\"Colunas Renomeadas2\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Usuário\"}),",
+                "    #\"Valor Substituído10\" = Table.ReplaceValue(#\"Valor Substituído9\",\"'-\",\"-----------------------\",Replacer.ReplaceText,{\"Usuário\"}),",
+                "    #\"Valor Substituído11\" = Table.ReplaceValue(#\"Valor Substituído10\",\"\",\"-------------------\",Replacer.ReplaceValue,{\"Satisfação\"}),",
+                "    #\"Valor Substituído12\" = Table.ReplaceValue(#\"Valor Substituído11\",\"'-\",\"----------------------\",Replacer.ReplaceText,{\"Satisfação\"}),",
+                "    #\"Outras Colunas Removidas\" = Table.SelectColumns(#\"Valor Substituído12\",{\"ID Requerente\", \"Requerente\", \"ID Ticker\"})",
+                "in",
+                "    #\"Outras Colunas Removidas\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "fSolução",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Data Inicio",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "60c39234-0cdb-4b1c-a562-9e62ac67302d",
+            "sourceColumn": "Data Inicio",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Data Fechamento",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "84543f7c-3eb5-4e1d-ba09-f5fa633271e2",
+            "sourceColumn": "Data Fechamento",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Data Iteração",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "75096bba-74c6-4de9-bba6-33ef682254c7",
+            "sourceColumn": "Data Iteração",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Data Solução",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "28b1613f-4a02-493b-8ec8-08a9feb659bc",
+            "sourceColumn": "Data Solução",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Problema",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2cf2d56e-2244-4544-8fce-a975ee3d2556",
+            "sourceColumn": "Problema",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Resolvido",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "eac99e45-b900-41a4-88c2-55c793e21113",
+            "sourceColumn": "Resolvido",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID Requerente",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "6d30a837-4feb-4cb6-8b5c-a807a357d237",
+            "sourceColumn": "ID Requerente",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ID Problema",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "a542e5cc-cbfd-4a8e-bf4c-ddfa195cd685",
+            "sourceColumn": "ID Problema",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ID Usuario",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3c51716c-14ce-400a-a5a8-970119f21657",
+            "sourceColumn": "ID Usuario",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID Ticker",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "21495f72-e112-4464-8b30-14241c15c38a",
+            "sourceColumn": "ID Ticker",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID Atendente",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "152580b0-c73c-4448-9659-e15e642a6921",
+            "sourceColumn": "ID Atendente",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "5592d92a-2798-4b46-9291-cf8009693b32",
+        "partitions": [
+          {
+            "name": "fSolução-1414076f-37a6-4fb2-ae0a-031d8e1448b6",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Fonte = Excel.Workbook(File.Contents(\"C:\\Users\\Robespierre\\Documents\\DASHBOARDS\\base de dados\\helpdesk\\hlp2.xlsx\"), null, true),",
+                "    HELP_Table = Fonte{[Item=\"HELP\",Kind=\"Table\"]}[Data],",
+                "    #\"Tipo Alterado\" = Table.TransformColumnTypes(HELP_Table,{{\"Atendente\", type text}, {\"Ano\", Int64.Type}, {\"Mês\", type text}, {\"Dia\", Int64.Type}, {\"Data Fechamento\", type text}, {\"Data Iteração\", type text}, {\"Data Solução\", type text}, {\"Descricao\", type text}, {\"ID Atendente\", Int64.Type}, {\"ID Problema\", Int64.Type}, {\"ID Requerente\", Int64.Type}, {\"ID Usuario\", Int64.Type}, {\"Problema\", type text}, {\"Requerente\", type text}, {\"Resolvido\", type text}, {\"Satisfação\", type text}, {\"Soma de Ticker\", Int64.Type}, {\"Usuário\", type text}}),",
+                "    #\"Colunas Reordenadas\" = Table.ReorderColumns(#\"Tipo Alterado\",{\"Atendente\", \"Dia\", \"Mês\", \"Ano\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"Descricao\", \"ID Atendente\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"Problema\", \"Requerente\", \"Resolvido\", \"Satisfação\", \"Soma de Ticker\", \"Usuário\"}),",
+                "    #\"Colunas Mescladas\" = Table.CombineColumns(Table.TransformColumnTypes(#\"Colunas Reordenadas\", {{\"Dia\", type text}, {\"Ano\", type text}}, \"pt-BR\"),{\"Dia\", \"Mês\", \"Ano\"},Combiner.CombineTextByDelimiter(\"/\", QuoteStyle.None),\"Mesclado\"),",
+                "    #\"Tipo Alterado1\" = Table.TransformColumnTypes(#\"Colunas Mescladas\",{{\"Mesclado\", type date}}),",
+                "    #\"Colunas Renomeadas\" = Table.RenameColumns(#\"Tipo Alterado1\",{{\"Mesclado\", \"Data Inicio\"}}),",
+                "    #\"Erros Substituídos\" = Table.ReplaceErrorValues(#\"Colunas Renomeadas\", {{\"ID Problema\", 78999}}),",
+                "    #\"Linhas Filtradas\" = Table.SelectRows(#\"Erros Substituídos\", each true),",
+                "    #\"Valor Substituído\" = Table.ReplaceValue(#\"Linhas Filtradas\",\"n�o\",\"não\",Replacer.ReplaceText,{\"Resolvido\"}),",
+                "    #\"Valor Substituído1\" = Table.ReplaceValue(#\"Valor Substituído\",\"'-\",\"---------------\",Replacer.ReplaceText,{\"Data Fechamento\"}),",
+                "    #\"Valor Substituído2\" = Table.ReplaceValue(#\"Valor Substituído1\",\"'-\",\"-----------------\",Replacer.ReplaceText,{\"Data Iteração\"}),",
+                "    #\"Linhas Filtradas1\" = Table.SelectRows(#\"Valor Substituído2\", each true),",
+                "    #\"Valor Substituído3\" = Table.ReplaceValue(#\"Linhas Filtradas1\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Data Iteração\"}),",
+                "    #\"Valor Substituído4\" = Table.ReplaceValue(#\"Valor Substituído3\",\"\",\"------------------\",Replacer.ReplaceValue,{\"Data Solução\"}),",
+                "    #\"Valor Substituído5\" = Table.ReplaceValue(#\"Valor Substituído4\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Data Solução\"}),",
+                "    #\"Valor Substituído6\" = Table.ReplaceValue(#\"Valor Substituído5\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído7\" = Table.ReplaceValue(#\"Valor Substituído6\",\"SEI >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído8\" = Table.ReplaceValue(#\"Valor Substituído7\",\"Suporte >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Linhas Filtradas2\" = Table.SelectRows(#\"Valor Substituído8\", each ([Descricao] <> \"Laborat�rio\")),",
+                "    #\"Colunas Renomeadas1\" = Table.RenameColumns(#\"Linhas Filtradas2\",{{\"Soma de Ticker\", \"Ticker\"}}),",
+                "    #\"Coluna Duplicada\" = Table.DuplicateColumn(#\"Colunas Renomeadas1\", \"Ticker\", \"Ticker - Copiar\"),",
+                "    #\"Colunas Renomeadas2\" = Table.RenameColumns(#\"Coluna Duplicada\",{{\"Ticker - Copiar\", \"ID Ticker\"}}),",
+                "    #\"Valor Substituído9\" = Table.ReplaceValue(#\"Colunas Renomeadas2\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Usuário\"}),",
+                "    #\"Valor Substituído10\" = Table.ReplaceValue(#\"Valor Substituído9\",\"'-\",\"-----------------------\",Replacer.ReplaceText,{\"Usuário\"}),",
+                "    #\"Valor Substituído11\" = Table.ReplaceValue(#\"Valor Substituído10\",\"\",\"-------------------\",Replacer.ReplaceValue,{\"Satisfação\"}),",
+                "    #\"Colunas Reordenadas1\" = Table.ReorderColumns(#\"Valor Substituído11\",{\"Atendente\", \"Descricao\", \"ID Atendente\", \"Data Inicio\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"Problema\", \"Requerente\", \"Resolvido\", \"Satisfação\", \"Ticker\", \"Usuário\", \"ID Ticker\"}),",
+                "    #\"Outras Colunas Removidas\" = Table.SelectColumns(#\"Colunas Reordenadas1\",{\"Data Inicio\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"ID Ticker\", \"Resolvido\", \"Problema\", \"ID Atendente\"}),",
+                "    #\"Colunas Reordenadas2\" = Table.ReorderColumns(#\"Outras Colunas Removidas\",{\"Data Inicio\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"Problema\", \"Resolvido\", \"ID Requerente\", \"ID Problema\", \"ID Usuario\", \"ID Ticker\", \"ID Atendente\"}),",
+                "    #\"Valor Substituído12\" = Table.ReplaceValue(#\"Colunas Reordenadas2\",\"---------------\",\"\",Replacer.ReplaceText,{\"Data Fechamento\"}),",
+                "    #\"Valor Substituído13\" = Table.ReplaceValue(#\"Valor Substituído12\",\"----------------\",\"\",Replacer.ReplaceText,{\"Data Iteração\"}),",
+                "    #\"Valor Substituído14\" = Table.ReplaceValue(#\"Valor Substituído13\",\"----------------\",\"\",Replacer.ReplaceText,{\"Data Solução\"}),",
+                "    #\"Valor Substituído15\" = Table.ReplaceValue(#\"Valor Substituído14\",\"--\",\"\",Replacer.ReplaceText,{\"Data Solução\"}),",
+                "    #\"Valor Substituído16\" = Table.ReplaceValue(#\"Valor Substituído15\",\"-\",\"\",Replacer.ReplaceText,{\"Data Iteração\"})",
+                "in",
+                "    #\"Valor Substituído16\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "dUsuario",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Usuário",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8abe8939-07e3-4d32-a633-410b2a57a46a",
+            "sourceColumn": "Usuário",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Ticker",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "1d835412-c2b7-4039-963f-a5df0bb73506",
+            "sourceColumn": "Ticker",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Data Inicio",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "8b8b9faf-0f64-4055-bb5d-d4fe99d32330",
+            "sourceColumn": "Data Inicio",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Data Fechamento",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "1d5ca7e4-f681-428a-8263-4bea96bbc5a0",
+            "sourceColumn": "Data Fechamento",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID Usuario",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "f86ae7dc-fbe7-4c2f-aef1-80c8fe5689fd",
+            "sourceColumn": "ID Usuario",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ID Ticker",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "9fd42ade-0c3c-47b7-a11c-bb9656049780",
+            "sourceColumn": "ID Ticker",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "f185e681-94aa-4cff-b7ec-7e5fb2f896ce",
+        "partitions": [
+          {
+            "name": "dUsuario-b1df39c6-c148-46cb-be99-91b49376fd2d",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Fonte = Excel.Workbook(File.Contents(\"C:\\Users\\Robespierre\\Documents\\DASHBOARDS\\base de dados\\helpdesk\\hlp2.xlsx\"), null, true),",
+                "    HELP_Table = Fonte{[Item=\"HELP\",Kind=\"Table\"]}[Data],",
+                "    #\"Tipo Alterado\" = Table.TransformColumnTypes(HELP_Table,{{\"Atendente\", type text}, {\"Ano\", Int64.Type}, {\"Mês\", type text}, {\"Dia\", Int64.Type}, {\"Data Fechamento\", type text}, {\"Data Iteração\", type text}, {\"Data Solução\", type text}, {\"Descricao\", type text}, {\"ID Atendente\", Int64.Type}, {\"ID Problema\", Int64.Type}, {\"ID Requerente\", Int64.Type}, {\"ID Usuario\", Int64.Type}, {\"Problema\", type text}, {\"Requerente\", type text}, {\"Resolvido\", type text}, {\"Satisfação\", type text}, {\"Soma de Ticker\", Int64.Type}, {\"Usuário\", type text}}),",
+                "    #\"Colunas Reordenadas\" = Table.ReorderColumns(#\"Tipo Alterado\",{\"Atendente\", \"Dia\", \"Mês\", \"Ano\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"Descricao\", \"ID Atendente\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"Problema\", \"Requerente\", \"Resolvido\", \"Satisfação\", \"Soma de Ticker\", \"Usuário\"}),",
+                "    #\"Colunas Mescladas\" = Table.CombineColumns(Table.TransformColumnTypes(#\"Colunas Reordenadas\", {{\"Dia\", type text}, {\"Ano\", type text}}, \"pt-BR\"),{\"Dia\", \"Mês\", \"Ano\"},Combiner.CombineTextByDelimiter(\"/\", QuoteStyle.None),\"Mesclado\"),",
+                "    #\"Tipo Alterado1\" = Table.TransformColumnTypes(#\"Colunas Mescladas\",{{\"Mesclado\", type date}}),",
+                "    #\"Colunas Renomeadas\" = Table.RenameColumns(#\"Tipo Alterado1\",{{\"Mesclado\", \"Data Inicio\"}}),",
+                "    #\"Erros Substituídos\" = Table.ReplaceErrorValues(#\"Colunas Renomeadas\", {{\"ID Problema\", 78999}}),",
+                "    #\"Linhas Filtradas\" = Table.SelectRows(#\"Erros Substituídos\", each true),",
+                "    #\"Valor Substituído\" = Table.ReplaceValue(#\"Linhas Filtradas\",\"n�o\",\"não\",Replacer.ReplaceText,{\"Resolvido\"}),",
+                "    #\"Valor Substituído1\" = Table.ReplaceValue(#\"Valor Substituído\",\"'-\",\"---------------\",Replacer.ReplaceText,{\"Data Fechamento\"}),",
+                "    #\"Valor Substituído2\" = Table.ReplaceValue(#\"Valor Substituído1\",\"'-\",\"-----------------\",Replacer.ReplaceText,{\"Data Iteração\"}),",
+                "    #\"Linhas Filtradas1\" = Table.SelectRows(#\"Valor Substituído2\", each true),",
+                "    #\"Valor Substituído3\" = Table.ReplaceValue(#\"Linhas Filtradas1\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Data Iteração\"}),",
+                "    #\"Valor Substituído4\" = Table.ReplaceValue(#\"Valor Substituído3\",\"\",\"------------------\",Replacer.ReplaceValue,{\"Data Solução\"}),",
+                "    #\"Valor Substituído5\" = Table.ReplaceValue(#\"Valor Substituído4\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Data Solução\"}),",
+                "    #\"Valor Substituído6\" = Table.ReplaceValue(#\"Valor Substituído5\",\"'-\",\"------------------\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído7\" = Table.ReplaceValue(#\"Valor Substituído6\",\"SEI >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Valor Substituído8\" = Table.ReplaceValue(#\"Valor Substituído7\",\"Suporte >\",\"\",Replacer.ReplaceText,{\"Descricao\"}),",
+                "    #\"Linhas Filtradas2\" = Table.SelectRows(#\"Valor Substituído8\", each ([Descricao] <> \"Laborat�rio\")),",
+                "    #\"Colunas Renomeadas1\" = Table.RenameColumns(#\"Linhas Filtradas2\",{{\"Soma de Ticker\", \"Ticker\"}}),",
+                "    #\"Coluna Duplicada\" = Table.DuplicateColumn(#\"Colunas Renomeadas1\", \"Ticker\", \"Ticker - Copiar\"),",
+                "    #\"Colunas Renomeadas2\" = Table.RenameColumns(#\"Coluna Duplicada\",{{\"Ticker - Copiar\", \"ID Ticker\"}}),",
+                "    #\"Valor Substituído9\" = Table.ReplaceValue(#\"Colunas Renomeadas2\",\"\",\"----------------\",Replacer.ReplaceValue,{\"Usuário\"}),",
+                "    #\"Valor Substituído10\" = Table.ReplaceValue(#\"Valor Substituído9\",\"'-\",\"-----------------------\",Replacer.ReplaceText,{\"Usuário\"}),",
+                "    #\"Valor Substituído11\" = Table.ReplaceValue(#\"Valor Substituído10\",\"\",\"-------------------\",Replacer.ReplaceValue,{\"Satisfação\"}),",
+                "    #\"Valor Substituído12\" = Table.ReplaceValue(#\"Valor Substituído11\",\"'-\",\"----------------------\",Replacer.ReplaceText,{\"Satisfação\"}),",
+                "    #\"Colunas Reordenadas1\" = Table.ReorderColumns(#\"Valor Substituído12\",{\"Atendente\", \"ID Ticker\", \"Usuário\", \"Ticker\", \"Data Inicio\", \"Data Fechamento\", \"Data Iteração\", \"Data Solução\", \"Descricao\", \"ID Atendente\", \"ID Problema\", \"ID Requerente\", \"ID Usuario\", \"Problema\", \"Requerente\", \"Resolvido\", \"Satisfação\"}),",
+                "    #\"Outras Colunas Removidas\" = Table.SelectColumns(#\"Colunas Reordenadas1\",{\"Ticker\", \"Usuário\", \"ID Ticker\", \"Data Inicio\", \"Data Fechamento\", \"ID Usuario\"}),",
+                "    #\"Colunas Reordenadas2\" = Table.ReorderColumns(#\"Outras Colunas Removidas\",{\"Usuário\", \"Ticker\", \"Data Inicio\", \"Data Fechamento\", \"ID Usuario\", \"ID Ticker\"}),",
+                "    #\"Valor Substituído13\" = Table.ReplaceValue(#\"Colunas Reordenadas2\",\"---------------\",\"\",Replacer.ReplaceText,{\"Data Fechamento\"}),",
+                "    #\"Valor Substituído14\" = Table.ReplaceValue(#\"Valor Substituído13\",\"----------------\",\"\",Replacer.ReplaceText,{\"Usuário\"}),",
+                "    #\"Valor Substituído15\" = Table.ReplaceValue(#\"Valor Substituído14\",\"-------\",\"\",Replacer.ReplaceText,{\"Usuário\"})",
+                "in",
+                "    #\"Valor Substituído15\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "fDuração",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "ID Ticker",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "72db50ed-07d8-4dab-bec3-a16518a7eae7",
+            "sourceColumn": "ID Ticker",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Data Abertura",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "lineageTag": "af6a7b65-8efe-4405-88d3-67e281b04189",
+            "sourceColumn": "Data Abertura",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Hierarquia de datas",
+                  "table": "LocalDateTable_9b978dd6-465e-4ae8-ab85-f81979ff40af"
+                },
+                "isDefault": true,
+                "relationship": "6bc46d21-bcef-4e66-9cf3-71e18a8d8ac5"
+              }
+            ]
+          },
+          {
+            "name": "Data Fechamento",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "lineageTag": "e04cebfc-18ee-4011-acbe-a6b8a64a0a2a",
+            "sourceColumn": "Data Fechamento",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Hierarquia de datas",
+                  "table": "LocalDateTable_002cd450-4564-48bb-a59b-01dea262e28a"
+                },
+                "isDefault": true,
+                "relationship": "7e2199c4-1624-4c20-83c1-38fac30e97e0"
+              }
+            ]
+          },
+          {
+            "name": "Subtração",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "ccedfe1f-aea0-4200-b974-42d506155b6e",
+            "sourceColumn": "Subtração",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Total de Horas",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "511a1fdc-db9c-43eb-9083-f85b20493b00",
+            "sourceColumn": "Total de Horas",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "Data",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "95be9f26-d3c6-4c9f-b2ba-d19759d00002",
+            "sourceColumn": "Data",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Hora",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isCustom\":true}"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "00 \\h",
+            "lineageTag": "8e685836-b0ee-4157-8eb5-e4edbf659d3f",
+            "sourceColumn": "Hora",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "02e19bb0-a857-4f3e-b7a1-b81881179359",
+        "measures": [
+          {
+            "name": "Total_horas_atendimentos",
+            "expression": "SUM('fDuração'[Total de Horas])",
+            "formatString": "0.0000",
+            "lineageTag": "b185dbf4-51b5-4a23-875f-e4c8bba209f4"
+          },
+          {
+            "name": "HORAS_Atendimentos",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isCustom\":true}"
+              }
+            ],
+            "expression": [
+              "",
+              "VAR horas =INT(SUM('fDuração'[Total de Horas]))",
+              "VAR minutos = INT((SUM('fDuração'[Total de Horas]) - horas) * 60)",
+              "VAR segundos = ROUND(((SUM('fDuração'[Total de Horas]) - horas) * 60 - minutos) * 60, 0)",
+              "RETURN",
+              "VALUE(horas & minutos & segundos)",
+              ""
+            ],
+            "formatString": "00:00:00",
+            "lineageTag": "cf9eb6b1-e94c-4914-8024-62ffa2515e00"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "fDuração-7eab35a0-9000-4576-90c6-b6629f8d6775",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Fonte = Csv.Document(File.Contents(\"C:\\Users\\Robespierre\\Documents\\DASHBOARDS\\base de dados\\helpdesk\\helpdesk.csv\"),[Delimiter=\";\", Columns=12, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Cabeçalhos Promovidos\" = Table.PromoteHeaders(Fonte, [PromoteAllScalars=true]),",
+                "    #\"Tipo Alterado\" = Table.TransformColumnTypes(#\"Cabeçalhos Promovidos\",{{\"Ticker\", Int64.Type}, {\"Requerente\", type text}, {\"Grupo\", type text}, {\"Categoria\", type text}, {\"Data Abertura\", type datetime}, {\"Data Solução\", type text}, {\"Data Fechamento\", type text}, {\"Atendente\", type text}, {\"Satisfação\", type text}, {\"Data Iteração\", type text}, {\"Usuário Iteração\", type text}, {\"Resolvido\", type text}}),",
+                "    #\"Outras Colunas Removidas\" = Table.SelectColumns(#\"Tipo Alterado\",{\"Ticker\", \"Data Abertura\", \"Data Solução\", \"Data Fechamento\"}),",
+                "    #\"Colunas Reordenadas\" = Table.ReorderColumns(#\"Outras Colunas Removidas\",{\"Ticker\", \"Data Abertura\", \"Data Fechamento\", \"Data Solução\"}),",
+                "    #\"Colunas Removidas\" = Table.RemoveColumns(#\"Colunas Reordenadas\",{\"Data Solução\"}),",
+                "    #\"Coluna Duplicada\" = Table.DuplicateColumn(#\"Colunas Removidas\", \"Data Abertura\", \"Data Abertura - Copiar\"),",
+                "    #\"Coluna Duplicada1\" = Table.DuplicateColumn(#\"Coluna Duplicada\", \"Data Fechamento\", \"Data Fechamento - Copiar\"),",
+                "    #\"Tipo Alterado1\" = Table.TransformColumnTypes(#\"Coluna Duplicada1\",{{\"Data Abertura - Copiar\", type time}, {\"Data Fechamento - Copiar\", type duration}}),",
+                "    #\"Colunas Removidas1\" = Table.RemoveColumns(#\"Tipo Alterado1\",{\"Data Fechamento - Copiar\"}),",
+                "    #\"Coluna Duplicada2\" = Table.DuplicateColumn(#\"Colunas Removidas1\", \"Data Fechamento\", \"Data Fechamento - Copiar\"),",
+                "    #\"Tipo Alterado2\" = Table.TransformColumnTypes(#\"Coluna Duplicada2\",{{\"Data Fechamento - Copiar\", type duration}}),",
+                "    #\"Colunas Removidas2\" = Table.RemoveColumns(#\"Tipo Alterado2\",{\"Data Fechamento - Copiar\"}),",
+                "    #\"Coluna Duplicada3\" = Table.DuplicateColumn(#\"Colunas Removidas2\", \"Data Fechamento\", \"Data Fechamento - Copiar\"),",
+                "    #\"Tipo Alterado3\" = Table.TransformColumnTypes(#\"Coluna Duplicada3\",{{\"Data Fechamento - Copiar\", type time}}),",
+                "    #\"Colunas Removidas3\" = Table.RemoveColumns(#\"Tipo Alterado3\",{\"Data Fechamento - Copiar\", \"Data Abertura - Copiar\"}),",
+                "    #\"Tipo Alterado4\" = Table.TransformColumnTypes(#\"Colunas Removidas3\",{{\"Data Fechamento\", type datetime}}),",
+                "    #\"Subtração da Hora Inserida\" = Table.AddColumn(#\"Tipo Alterado4\", \"Subtração\", each [Data Fechamento] - [Data Abertura], type duration),",
+                "    #\"Horas Totais Inseridas\" = Table.AddColumn(#\"Subtração da Hora Inserida\", \"Total de Horas\", each Duration.TotalHours([Subtração]), type number),",
+                "    #\"Coluna Duplicada4\" = Table.DuplicateColumn(#\"Horas Totais Inseridas\", \"Data Abertura\", \"Data Abertura - Copiar\"),",
+                "    #\"Colunas Renomeadas\" = Table.RenameColumns(#\"Coluna Duplicada4\",{{\"Data Abertura - Copiar\", \"Data\"}}),",
+                "    #\"Data Inserida\" = Table.AddColumn(#\"Colunas Renomeadas\", \"Data.1\", each DateTime.Date([Data]), type date),",
+                "    #\"Hora Inserida\" = Table.AddColumn(#\"Data Inserida\", \"Hora\", each Time.Hour([Data]), Int64.Type),",
+                "    #\"Colunas Removidas4\" = Table.RemoveColumns(#\"Hora Inserida\",{\"Data\"}),",
+                "    #\"Colunas Renomeadas1\" = Table.RenameColumns(#\"Colunas Removidas4\",{{\"Data.1\", \"Data\"}, {\"Ticker\", \"ID Ticker\"}})",
+                "in",
+                "    #\"Colunas Renomeadas1\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "LocalDateTable_9b978dd6-465e-4ae8-ab85-f81979ff40af",
+        "annotations": [
+          {
+            "name": "__PBI_LocalDateTable",
+            "value": "true"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "PaddedDateTableDates",
+            "dataType": "dateTime",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": true,
+            "lineageTag": "5a04af22-bbda-4a7d-868a-c7d551d642b3",
+            "sourceColumn": "[Date]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Ano",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Year"
+              }
+            ],
+            "dataCategory": "Years",
+            "dataType": "int64",
+            "expression": "YEAR([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "024023ac-97b1-46f7-956b-1991e5d2f81f",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "MonthNumber"
+              }
+            ],
+            "dataCategory": "MonthOfYear",
+            "dataType": "int64",
+            "expression": "MONTH([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "9f5b3ccb-af0f-4fd0-beca-81e3e8dbc281",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Mês",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Month"
+              }
+            ],
+            "dataCategory": "Months",
+            "dataType": "string",
+            "expression": "FORMAT([Date], \"MMMM\")",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "bfc437d8-f4fb-4d4d-aaeb-42b19d4ba2cd",
+            "sortByColumn": "MonthNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "QuarterNumber"
+              }
+            ],
+            "dataCategory": "QuarterOfYear",
+            "dataType": "int64",
+            "expression": "INT(([MonthNo] + 2) / 3)",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "9545b795-1d94-4f19-836d-cf9e60dcdca9",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Trimestre",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Quarter"
+              }
+            ],
+            "dataCategory": "Quarters",
+            "dataType": "string",
+            "expression": "\"Trim \" & [QuarterNo]",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "490f01fb-4170-499b-bc82-278ca1e4d33a",
+            "sortByColumn": "QuarterNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Dia",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Day"
+              }
+            ],
+            "dataCategory": "DayOfMonth",
+            "dataType": "int64",
+            "expression": "DAY([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "5c358767-1c10-44e7-a04f-cfb72948943b",
+            "summarizeBy": "none",
+            "type": "calculated"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Hierarquia de datas",
+            "annotations": [
+              {
+                "name": "TemplateId",
+                "value": "DateHierarchy"
+              }
+            ],
+            "levels": [
+              {
+                "name": "Ano",
+                "column": "Ano",
+                "lineageTag": "7dc0f168-9048-43f3-ba83-86849a8eda76",
+                "ordinal": 0
+              },
+              {
+                "name": "Trimestre",
+                "column": "Trimestre",
+                "lineageTag": "e59c8124-7a9d-4929-a2ab-0b122566018b",
+                "ordinal": 1
+              },
+              {
+                "name": "Mês",
+                "column": "Mês",
+                "lineageTag": "12f3be85-77f3-4796-bf4a-0ca4d0726ea4",
+                "ordinal": 2
+              },
+              {
+                "name": "Dia",
+                "column": "Dia",
+                "lineageTag": "1ce06087-e446-4ac6-a39d-228246632996",
+                "ordinal": 3
+              }
+            ],
+            "lineageTag": "8a7ce81b-b611-46d5-a80c-ed433a91285a"
+          }
+        ],
+        "isHidden": true,
+        "lineageTag": "6d6223f0-4ea5-4c6a-b670-ac6f3ba9dd0d",
+        "partitions": [
+          {
+            "name": "LocalDateTable_9b978dd6-465e-4ae8-ab85-f81979ff40af-31b4c559-17ad-49f1-bc0b-c23b1ecae184",
+            "mode": "import",
+            "source": {
+              "expression": "Calendar(Date(Year(MIN('fDuração'[Data Abertura])), 1, 1), Date(Year(MAX('fDuração'[Data Abertura])), 12, 31))",
+              "type": "calculated"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true
+      },
+      {
+        "name": "LocalDateTable_002cd450-4564-48bb-a59b-01dea262e28a",
+        "annotations": [
+          {
+            "name": "__PBI_LocalDateTable",
+            "value": "true"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "PaddedDateTableDates",
+            "dataType": "dateTime",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": true,
+            "lineageTag": "8cd2b1a9-da78-45be-a9bb-d5cd0672c03b",
+            "sourceColumn": "[Date]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Ano",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Year"
+              }
+            ],
+            "dataCategory": "Years",
+            "dataType": "int64",
+            "expression": "YEAR([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "f1346822-9755-49d3-b936-2a9b9bc699ff",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "MonthNumber"
+              }
+            ],
+            "dataCategory": "MonthOfYear",
+            "dataType": "int64",
+            "expression": "MONTH([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "bbb6128d-e5a1-4f4d-8e92-05b73caacfc6",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Mês",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Month"
+              }
+            ],
+            "dataCategory": "Months",
+            "dataType": "string",
+            "expression": "FORMAT([Date], \"MMMM\")",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "0d08a418-b3e7-436b-9e83-f652f818fc1c",
+            "sortByColumn": "MonthNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "QuarterNumber"
+              }
+            ],
+            "dataCategory": "QuarterOfYear",
+            "dataType": "int64",
+            "expression": "INT(([MonthNo] + 2) / 3)",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "52ea35b2-7dd1-4779-8794-6d7555f1409d",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Trimestre",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Quarter"
+              }
+            ],
+            "dataCategory": "Quarters",
+            "dataType": "string",
+            "expression": "\"Trim \" & [QuarterNo]",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "01ae5925-9475-4498-a2d7-1cea13ee43cf",
+            "sortByColumn": "QuarterNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Dia",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Day"
+              }
+            ],
+            "dataCategory": "DayOfMonth",
+            "dataType": "int64",
+            "expression": "DAY([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "9ee050bc-3df3-4d99-9e2a-88c0ea905550",
+            "summarizeBy": "none",
+            "type": "calculated"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Hierarquia de datas",
+            "annotations": [
+              {
+                "name": "TemplateId",
+                "value": "DateHierarchy"
+              }
+            ],
+            "levels": [
+              {
+                "name": "Ano",
+                "column": "Ano",
+                "lineageTag": "5c397678-bc5a-419e-8d5f-dc78366e6da1",
+                "ordinal": 0
+              },
+              {
+                "name": "Trimestre",
+                "column": "Trimestre",
+                "lineageTag": "094e432a-d526-4ee1-bbcb-3dedc9cbc3e8",
+                "ordinal": 1
+              },
+              {
+                "name": "Mês",
+                "column": "Mês",
+                "lineageTag": "49beedad-024a-408f-bbf8-da7a329db4ee",
+                "ordinal": 2
+              },
+              {
+                "name": "Dia",
+                "column": "Dia",
+                "lineageTag": "a55a69f6-3035-4d94-883c-d9b7ca7fc29a",
+                "ordinal": 3
+              }
+            ],
+            "lineageTag": "460dc309-5b37-4bbf-b58a-7908efd9473f"
+          }
+        ],
+        "isHidden": true,
+        "lineageTag": "e250fead-c6fe-463c-85a2-727be3161538",
+        "partitions": [
+          {
+            "name": "LocalDateTable_002cd450-4564-48bb-a59b-01dea262e28a-035a101c-ee3f-442a-a9ae-b35daf444826",
+            "mode": "import",
+            "source": {
+              "expression": "Calendar(Date(Year(MIN('fDuração'[Data Fechamento])), 1, 1), Date(Year(MAX('fDuração'[Data Fechamento])), 12, 31))",
+              "type": "calculated"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true
+      },
+      {
+        "name": "dCalendario",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "ID Data",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Short Date",
+            "isKey": true,
+            "lineageTag": "5b017e45-3c47-4aa5-b190-abce8c35f377",
+            "sourceColumn": "ID Data",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Ano",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "2e5f58cc-ff29-46f4-b217-4044ad6e76eb",
+            "sourceColumn": "Ano",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Mês",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "afcc294c-4865-404e-add0-d2c548803c10",
+            "sourceColumn": "Mês",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Nome do Mês",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b07d6040-bca3-4e66-804e-e807ca2d08ae",
+            "sourceColumn": "Nome do Mês",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Semana do Ano",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "dd04c6f2-5fca-485c-b228-4f25f0ebce46",
+            "sourceColumn": "Semana do Ano",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Dia",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "1aaa62e0-4c06-4e10-aa21-887ae2d6b39b",
+            "sourceColumn": "Dia",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Nome do Dia",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "725a3509-8147-4e45-b5d9-2bf5cc9e8097",
+            "sourceColumn": "Nome do Dia",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Semestre",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "65475320-3c98-401c-b69b-10fe19c731d9",
+            "sourceColumn": "Semestre",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Mes/Ano",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "aaa82613-0f32-4b46-9624-79c9cbf8d19c",
+            "sourceColumn": "Mes/Ano",
+            "summarizeBy": "none"
+          }
+        ],
+        "dataCategory": "Time",
+        "hierarchies": [
+          {
+            "name": "Ano Hierarquia",
+            "levels": [
+              {
+                "name": "Ano",
+                "column": "Ano",
+                "lineageTag": "d208f05c-7f89-4d24-ace9-b93c3d4f1049",
+                "ordinal": 0
+              },
+              {
+                "name": "Dia",
+                "column": "Dia",
+                "lineageTag": "4bfb29a5-4343-41fd-a0d0-3ccd18ec5dc6",
+                "ordinal": 1
+              },
+              {
+                "name": "Mês",
+                "column": "Mês",
+                "lineageTag": "66897f5d-14f3-45d0-9aa5-c2fd4fd4b61b",
+                "ordinal": 2
+              },
+              {
+                "name": "Mes/Ano",
+                "column": "Mes/Ano",
+                "lineageTag": "935b9424-ee00-4264-ae32-bd4be6512e98",
+                "ordinal": 3
+              }
+            ],
+            "lineageTag": "05e7c20f-7ba5-4217-9231-cea9dc5e46f2"
+          }
+        ],
+        "lineageTag": "e1467429-da84-4ed7-8e77-ee0c353b99a1",
+        "partitions": [
+          {
+            "name": "dCalendario-e1e7f435-ca5b-499b-9fc1-819dcfee1509",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Fonte = Consulta1(#date(2021, 5, 1), 130, #duration(1, 0, 0, 0)),",
+                "    #\"Convertido para Tabela\" = Table.FromList(Fonte, Splitter.SplitByNothing(), null, null, ExtraValues.Error),",
+                "    #\"Colunas Renomeadas\" = Table.RenameColumns(#\"Convertido para Tabela\",{{\"Column1\", \"Data\"}}),",
+                "    #\"Ano Inserido\" = Table.AddColumn(#\"Colunas Renomeadas\", \"Ano\", each Date.Year([Data]), Int64.Type),",
+                "    #\"Mês Inserido\" = Table.AddColumn(#\"Ano Inserido\", \"Mês\", each Date.Month([Data]), Int64.Type),",
+                "    #\"Nome do Mês Inserido\" = Table.AddColumn(#\"Mês Inserido\", \"Nome do Mês\", each Date.MonthName([Data]), type text),",
+                "    #\"Semana do Ano Inserida\" = Table.AddColumn(#\"Nome do Mês Inserido\", \"Semana do Ano\", each Date.WeekOfYear([Data]), Int64.Type),",
+                "    #\"Dia Inserido\" = Table.AddColumn(#\"Semana do Ano Inserida\", \"Dia\", each Date.Day([Data]), Int64.Type),",
+                "    #\"Nome do Dia Inserido\" = Table.AddColumn(#\"Dia Inserido\", \"Nome do Dia\", each Date.DayOfWeekName([Data]), type text),",
+                "    #\"Coluna Condicional Adicionada\" = Table.AddColumn(#\"Nome do Dia Inserido\", \"Semestre\", each if [Mês] = 6 then \"S1\" else \"S2\"),",
+                "    #\"Primeiros Caracteres Inseridos\" = Table.AddColumn(#\"Coluna Condicional Adicionada\", \"Primeiros caracteres\", each Text.Start([Nome do Mês], 3), type text),",
+                "    #\"Coluna Duplicada\" = Table.DuplicateColumn(#\"Primeiros Caracteres Inseridos\", \"Ano\", \"Ano - Copiar\"),",
+                "    #\"Colunas Mescladas\" = Table.CombineColumns(Table.TransformColumnTypes(#\"Coluna Duplicada\", {{\"Ano - Copiar\", type text}}, \"pt-BR\"),{\"Primeiros caracteres\", \"Ano - Copiar\"},Combiner.CombineTextByDelimiter(\"/\", QuoteStyle.None),\"Mes/Ano\"),",
+                "    #\"Colocar Cada Palavra Em Maiúscula\" = Table.TransformColumns(#\"Colunas Mescladas\",{{\"Nome do Dia\", Text.Proper, type text}}),",
+                "    #\"Valor Substituído\" = Table.ReplaceValue(#\"Colocar Cada Palavra Em Maiúscula\",\"-Feira\",\"\",Replacer.ReplaceText,{\"Nome do Dia\"}),",
+                "    #\"Colunas Renomeadas1\" = Table.RenameColumns(#\"Valor Substituído\",{{\"Data\", \"ID Data\"}})",
+                "in",
+                "    #\"Colunas Renomeadas1\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "_Medidas",
+        "annotations": [
+          {
+            "name": "PBI_Id",
+            "value": "6dc88940050f47229c6cf0c24eb32fca"
+          },
+          {
+            "name": "436ba87b-9c83-4389-a31b-ebd06a36be98",
+            "value": "{\"Expression\":\"\"}"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Column",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "82314382-ab15-4f9a-97c6-320b0d7c6be7",
+            "sourceColumn": "[Column]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          }
+        ],
+        "lineageTag": "de32a6ba-9a0f-4427-a0cf-606e7b712ef7",
+        "measures": [
+          {
+            "name": "Total requisições",
+            "expression": "COUNTROWS('dUsuario')",
+            "formatString": "0",
+            "lineageTag": "6adf1441-c798-45ba-8795-d0f223811ce8"
+          },
+          {
+            "name": "Total_Usuario",
+            "expression": "DISTINCTCOUNT(dUsuario[Usuário])",
+            "formatString": "0",
+            "lineageTag": "bcfbd3ba-e876-4494-a5a6-3c71d6c1728d"
+          },
+          {
+            "name": "Total requisiçoes Aberta",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "\t[Total requisições],",
+              "\tISBLANK('dUsuario'[Data Fechamento]),",
+              "    USERELATIONSHIP('dCalendario'[ID Data], 'dUsuario'[Data Fechamento]))"
+            ],
+            "formatString": "0",
+            "lineageTag": "67126d6b-5501-45b2-9396-d265ec715c2e"
+          },
+          {
+            "name": "Total Requisições fechadas",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    [Total requisições] - [Total requisiçoes Aberta] ,",
+              "    FILTER(",
+              "        ALL(dCalendario),",
+              "        dCalendario[ID Data] <= MAX(dCalendario[ID Data])",
+              "    )",
+              ")"
+            ],
+            "formatString": "0",
+            "lineageTag": "d0ff5cd1-1295-418c-bcd3-f5429641917c"
+          },
+          {
+            "name": "Total Requisições Fechadas Hoje",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    [Total Requisições fechadas],",
+              "    dUsuario[Data Fechamento] = TODAY())"
+            ],
+            "formatString": "0",
+            "lineageTag": "524344c7-3a48-4a68-9dae-2fef1246bdc6"
+          },
+          {
+            "name": "Total Atendimentos",
+            "expression": "COUNTROWS('fSolução')",
+            "formatString": "0",
+            "lineageTag": "40486211-6e0c-4595-bc5d-8b9fcfa8650a"
+          },
+          {
+            "name": "Requisiçoes não-resolvidas",
+            "expression": "CALCULATE([Total Atendimentos], 'fSolução'[Resolvido]=\"não\")",
+            "formatString": "0",
+            "lineageTag": "8bc18858-a814-43a1-9df9-695c5d45fcfe"
+          },
+          {
+            "name": "Requisiçoes_resolvidas",
+            "expression": "CALCULATE([Total Atendimentos], 'fSolução'[Resolvido]=\"sim\")",
+            "formatString": "0",
+            "lineageTag": "e28c6587-cfa7-4ba1-a835-262c8ffc8473"
+          },
+          {
+            "name": "Média Diária Fechados",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": [
+              "",
+              "VAR vDias = DISTINCTCOUNT(dUsuario[Data Fechamento])",
+              "RETURN",
+              "DIVIDE(   ",
+              "    [Total Requisições fechadas],",
+              "    vDias",
+              ")"
+            ],
+            "lineageTag": "c82bba77-0d72-4eef-b544-0dfb33ea580c"
+          },
+          {
+            "name": "% Requisições",
+            "expression": "DIVIDE([Requisiçoes_resolvidas] , [Total Atendimentos],BLANK())",
+            "formatString": "0%;-0%;0%",
+            "lineageTag": "703d030b-d41a-4275-8157-0198c0b3a7bd"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "_Medidas-cf5575eb-2d33-4097-b06d-615119d8ea49",
+            "mode": "import",
+            "source": {
+              "expression": "Row(\"Column\", BLANK())",
+              "type": "calculated"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
